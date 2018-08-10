@@ -1,0 +1,73 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+
+        <!-- App creation and adding command -->
+
+        <service id="symfony.application"
+            class="Symfony\Component\Console\Application">
+            <argument key="name">Apache Housekeeper</argument>
+            <argument key="version">@package_version@</argument>
+
+            <call method="add">
+                <argument type="service" id="ahousekeeper.self_update_command" />
+            </call>
+
+            <call method="add">
+                <argument type="service" id="ahousekeeper.scan_command" />
+            </call>
+        </service>
+
+
+
+        <!-- Command classes -->
+
+        <service id="ahousekeeper.self_update_command" class="GarethMidwood\ApacheHousekeeper\Command\ApacheHousekeeper\UpdateCommand">
+            <argument type="service" id="ahousekeeper.config" />
+            <argument type="service" id="ahousekeeper.responder" />
+        </service>
+
+        <service id="ahousekeeper.scan_command" class="GarethMidwood\ApacheHousekeeper\Command\ApacheHousekeeper\ScanCommand">
+            <argument type="service" id="ahousekeeper.config" />
+            <argument type="service" id="ahousekeeper.responder" />
+        </service>
+
+
+        <!-- Entities -->
+
+        <service id="ahousekeeper.config"
+            class="GarethMidwood\ApacheHousekeeper\Config\Config">
+            <argument type="service" id="symfony.console_output" />
+        </service>
+
+        <service id="ahousekeeper.responder"
+            class="GarethMidwood\ApacheHousekeeper\Response\Responder">
+            <argument type="service" id="ahousekeeper.response_json" />
+        </service>
+
+
+
+        <!-- Response Types -->
+
+        <service id="ahousekeeper.response_json"
+            class="GarethMidwood\ApacheHousekeeper\Response\Formatter\Json">
+        </service>
+
+        <!-- Raw symfony components -->
+
+        <service id="symfony.console_output"
+            class="Symfony\Component\Console\Output\ConsoleOutput">
+        </service>
+
+        <service id="symfony.filesystem"
+            class="Symfony\Component\Filesystem\Filesystem">
+        </service>
+
+        <service id="symfony.finder"
+            class="Symfony\Component\Finder\Finder">
+        </service>
+    </services>
+</container>

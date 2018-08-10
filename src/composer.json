@@ -1,0 +1,27 @@
+{
+    "name": "garethmidwood/apache-housekeeper",
+    "description": "Apache Housekeeping Tool - automatically disables sites that aren't in use",
+    "type": "executable",
+    "authors": [
+        {
+            "name": "Gareth Midwood",
+            "email": "gareth.midwood@creode.co.uk"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "symfony/console": "^3.4",
+        "symfony/filesystem": "^3.4",
+        "symfony/dependency-injection": "^3.4",
+        "symfony/config": "^3.4",
+        "symfony/process": "^3.4",
+        "symfony/finder": "^3.4",
+        "padraic/phar-updater": "^1.0",
+        "symfony/yaml": "^3.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "GarethMidwood\\": "GarethMidwood"
+        }
+    }
+}
