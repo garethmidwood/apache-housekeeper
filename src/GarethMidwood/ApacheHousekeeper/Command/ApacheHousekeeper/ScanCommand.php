@@ -37,6 +37,8 @@ class ScanCommand extends BaseCommand
         $this->sitesAvailable = $this->getSitesByDirectory($availablePath, $configFileExtension);
         $this->sitesRunning = $this->getSitesByDirectory($enabledPath, $configFileExtension);
         $this->sitesStopped = array_diff($this->sitesAvailable, $this->sitesRunning);
+
+        $this->populateAccessDatesForRunningSites();
     }
 
     /**
@@ -49,18 +51,48 @@ class ScanCommand extends BaseCommand
     {
         $results = [];
         $finder = new Finder();
-        $finder->files()->name('*.' . $configFileExtension)->in($path);
+        $finder->files()->name('*.' . $configFileExtension)->in($path)->depth('== 0');
 
         foreach ($finder as $file) {
             // filename, with the extension removed
-            $results[] = substr(
-                $file->getRelativePathname(),
-                0,
-                -(strlen($configFileExtension)+1)
-            );
+            $results[] = $file->getRealPath();
         }
 
         return $results;
+    }
+
+    /**
+     * Finds access dates for each of the running sites in the scan results
+     * @param string $path
+     * @return void
+     */
+    private function populateAccessDatesForRunningSites() 
+    {
+        foreach($this->sitesRunning as $site) {
+            $config = file_get_contents($site);
+
+            preg_match_all('/DocumentRoot ["\']*(?<path>.+)["\']*/', $config, $pathMatches);
+            preg_match_all('/DirectoryIndex ["\']*(?<path>[A-Za-z0-9 .]+)["\']*/', $config, $directoryIndexMatches);
+
+            $indexes = [];
+
+            if (count($directoryIndexMatches['path'])) {
+                foreach($directoryIndexMatches['path'] as $directoryIndexes) {
+                    $indexes = array_merge($indexes, explode(' ', $directoryIndexes));
+                }
+            } else {
+                // default to just index.php
+                $indexes = 'index.php';                
+            }
+
+            foreach($pathMatches['path'] as $path) {
+                foreach($indexes as $index) {
+                    // at this point, check the last access date of the file and decide whether it's being used
+                    // find . -name "ahousekeeper.*" -atime -1
+                    echo 'NOW SCAN THIS FILE ' . $path . DIRECTORY_SEPARATOR . $index . PHP_EOL;
+                }
+            }
+        }
     }
 
     private function respond() 
