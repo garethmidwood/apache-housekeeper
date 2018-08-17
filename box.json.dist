@@ -18,6 +18,5 @@
   "git-version": "package_version",
   "main": "src/index.php",
   "output": "docs/downloads/ahousekeeper.phar",
-  "stub": true,
-  "key": "docs/downloads/private.key"
+  "stub": true
 }

@@ -115,14 +115,14 @@ class UpdateCommand extends BaseCommand
 
     protected function getStableUpdater()
     {
-        $updater = new Updater;
+        $updater = new Updater(null, false);
         $updater->setStrategy(Updater::STRATEGY_GITHUB);
         return $this->getGithubReleasesUpdater($updater);
     }
 
     protected function getPreReleaseUpdater()
     {
-        $updater = new Updater;
+        $updater = new Updater(null, false);
         $updater->setStrategy(Updater::STRATEGY_GITHUB);
         $updater->getStrategy()->setStability(GithubStrategy::UNSTABLE);
         return $this->getGithubReleasesUpdater($updater);
@@ -130,7 +130,7 @@ class UpdateCommand extends BaseCommand
 
     protected function getMostRecentNonDevUpdater()
     {
-        $updater = new Updater;
+        $updater = new Updater(null, false);
         $updater->setStrategy(Updater::STRATEGY_GITHUB);
         $updater->getStrategy()->setStability(GithubStrategy::ANY);
         return $this->getGithubReleasesUpdater($updater);
@@ -146,7 +146,7 @@ class UpdateCommand extends BaseCommand
 
     protected function getDevelopmentUpdater()
     {
-        $updater = new Updater;
+        $updater = new Updater(null, false);
         $updater->getStrategy()->setPharUrl(self::PHAR_URL);
         $updater->getStrategy()->setVersionUrl(self::VERSION_URL);
         return $updater;
@@ -198,7 +198,7 @@ class UpdateCommand extends BaseCommand
 
     protected function rollback()
     {
-        $updater = new Updater;
+        $updater = new Updater(null, false);
         try {
             $result = $updater->rollback();
             if ($result) {
