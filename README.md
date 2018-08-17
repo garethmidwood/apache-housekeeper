@@ -16,14 +16,22 @@ The install will download a `ahousekeeper.yml.example` file containing an exampl
 ### Example configuration file
 
 ```
-path: /etc/apache2/sites-enabled
+enabled-path: /etc/apache2/sites-enabled
+available-path: /etc/apache2/sites-available
+config-extension: conf # this is default
 cutoff: 30
 ```
 
 ### What are the config settings?
 <dl>
-  <dt>path</dt>
-  <dd>The path to the `sites-enabled` directory for apache</dd>
+  <dt>enabled-path</dt>
+  <dd>The path to the `sites-enabled` directory for apache - <strong>default: /etc/apache2/sites-enabled</strong></dd>
+
+  <dt>available-path</dt>
+  <dd>The path to the `sites-available` directory for apache - <strong>default: /etc/apache2/sites-available</strong></dd>
+
+  <dt>config-extension</dt>
+  <dd>The vhost config extension - <strong>default: conf</strong></dd>
 
   <dt>cutoff</dt>
   <dd>The number of visitor-free days before a site is disabled - defaults to 30</dd>

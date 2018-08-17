@@ -5,9 +5,10 @@ namespace GarethMidwood\ApacheHousekeeper\Command\ApacheHousekeeper;
 use GarethMidwood\ApacheHousekeeper\Command\BaseCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 
 class ScanCommand extends BaseCommand
-{   
+{
     private $sitesRunning;
     private $sitesStopped;
 
@@ -25,9 +26,41 @@ class ScanCommand extends BaseCommand
 
     private function scanDirectory()
     {
-        // TODO: Scan directory and return results in array
-        $this->sitesRunning = ['ait.uat.creode.co.uk', 'cqf.uat.creode.co.uk', 'farmatrust.uat.creode.co.uk'];
-        $this->sitesStopped = ['allroundercricket.uat.creode.co.uk', 'basis.uat.creode.co.uk'];
+        $this->sitesRunning = [];
+        $this->sitesAvailable = [];
+        $this->sitesStopped = [];
+
+        $availablePath = $this->_config->get('available-path', '/etc/apache2/sites-available');
+        $enabledPath = $this->_config->get('enabled-path', '/etc/apache2/sites-enabled');
+        $configFileExtension = $this->_config->get('config-extension', 'conf');
+
+        $this->sitesAvailable = $this->getSitesByDirectory($availablePath, $configFileExtension);
+        $this->sitesRunning = $this->getSitesByDirectory($enabledPath, $configFileExtension);
+        $this->sitesStopped = array_diff($this->sitesAvailable, $this->sitesRunning);
+    }
+
+    /**
+     * Returns a list of the config files in the specified directory
+     * @param string $path 
+     * @param string $configFileExtension 
+     * @return array
+     */
+    private function getSitesByDirectory($path, $configFileExtension)
+    {
+        $results = [];
+        $finder = new Finder();
+        $finder->files()->name('*.' . $configFileExtension)->in($path);
+
+        foreach ($finder as $file) {
+            // filename, with the extension removed
+            $results[] = substr(
+                $file->getRelativePathname(),
+                0,
+                -(strlen($configFileExtension)+1)
+            );
+        }
+
+        return $results;
     }
 
     private function respond() 

@@ -1,1 +1,3 @@
-path: /etc/apache2/sites-enabled
+enabled-path: /etc/apache2/sites-enabled
+available-path: /etc/apache2/sites-available
+config-extension: conf # this is default
