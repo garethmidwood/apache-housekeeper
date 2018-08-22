@@ -68,6 +68,14 @@ class ScanCommand extends BaseCommand
      */
     private function populateAccessDatesForRunningSites() 
     {
+        $cutoffDays = $this->_config->get('cutoff', '30');
+        $cutoffDateTime = new \DateTime();
+        $cutoffDateTime->setTimestamp(strtotime("-$cutoffDays day"));
+
+        $nowDateTime = new \DateTime();
+
+        echo "Cut off date is: " . $cutoffDateTime->format("F d Y H:i:s.") . PHP_EOL;
+
         foreach($this->sitesRunning as $site) {
             $config = file_get_contents($site);
 
@@ -82,7 +90,7 @@ class ScanCommand extends BaseCommand
                 }
             } else {
                 // default to just index.php
-                $indexes = 'index.php';
+                $indexes = ['index.php'];
             }
 
             foreach($pathMatches['path'] as $path) {
@@ -93,8 +101,15 @@ class ScanCommand extends BaseCommand
 
                     if (file_exists($filename)) {
                         // check the last access date of the file and decide whether it's being used
-                        echo "$filename was last accessed: " . date("F d Y H:i:s.", fileatime($filename)) . PHP_EOL;
                         $foundAFile = true;
+                        $accessedTime = fileatime($filename);
+                        $accessedDateTime = new \DateTime();
+                        $accessedDateTime->setTimestamp($accessedTime);
+                        $interval = date_diff($accessedDateTime, $nowDateTime);
+
+                        if ($interval->format('%a') > $cutoffDays) {
+                            echo "$filename was not accessed recently. Last access was " . $interval->format('%a') . ' days ago' . PHP_EOL;
+                        }
                     }
                 }
 
@@ -105,6 +120,10 @@ class ScanCommand extends BaseCommand
         }
     }
 
+    /**
+     * Send a successful response
+     * @return void
+     */
     private function respond() 
     {
         $this->sendSuccessResponse([
