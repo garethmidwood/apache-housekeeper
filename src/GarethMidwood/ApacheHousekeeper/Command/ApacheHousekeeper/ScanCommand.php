@@ -72,7 +72,7 @@ class ScanCommand extends BaseCommand
             $config = file_get_contents($site);
 
             preg_match_all('/DocumentRoot ["\']*(?<path>.+)["\']*/', $config, $pathMatches);
-            preg_match_all('/DirectoryIndex ["\']*(?<path>[A-Za-z0-9 .]+)["\']*/', $config, $directoryIndexMatches);
+            preg_match_all('/DirectoryIndex ["\']*(?<path>[A-Za-z0-9 -.]+)["\']*/', $config, $directoryIndexMatches);
 
             $indexes = [];
 
@@ -82,14 +82,19 @@ class ScanCommand extends BaseCommand
                 }
             } else {
                 // default to just index.php
-                $indexes = 'index.php';                
+                $indexes = 'index.php';
             }
 
             foreach($pathMatches['path'] as $path) {
                 foreach($indexes as $index) {
-                    // at this point, check the last access date of the file and decide whether it's being used
-                    // find . -name "ahousekeeper.*" -atime -1
-                    echo 'NOW SCAN THIS FILE ' . $path . DIRECTORY_SEPARATOR . $index . PHP_EOL;
+                    $filename = $path . DIRECTORY_SEPARATOR . $index;
+
+                    if (file_exists($filename)) {
+                        // check the last access date of the file and decide whether it's being used
+                        echo "$filename was last accessed: " . date("F d Y H:i:s.", fileatime($filename)) . PHP_EOL;
+                    } else {
+                        echo "$filename does not exist" . PHP_EOL;
+                    }
                 }
             }
         }
