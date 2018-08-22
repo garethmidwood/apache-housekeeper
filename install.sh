@@ -180,20 +180,6 @@ else
   err "Error when downloading Apache Housekeeper example config from ${RELEASE_CONFIG}" 
 fi
 
-echo -ne "Setting permissions on files to match ../index.php"
-if [ -f ../index.php ]; then
-  log "setting permissions on files to match ../index.php"
-  chown --reference=../index.php ${TARGET_RELEASE_PATH} ${TARGET_RELEASE_KEY_PATH} ${TARGET_RELEASE_INDEX_PATH} ${TARGET_RELEASE_CONFIG_PATH}
-  chmod --reference=../index.php ${TARGET_RELEASE_PATH} ${TARGET_RELEASE_KEY_PATH} ${TARGET_RELEASE_INDEX_PATH} ${TARGET_RELEASE_CONFIG_PATH}
-else
-  log "no ../index.php file found, not setting permissions"
-  echo "${ERROR_COLOUR}You will need to set file ownership/permissions so that the web server can access the following files: \n"
-  echo "${TARGET_RELEASE_PATH}"
-  echo "${TARGET_RELEASE_KEY_PATH}"
-  echo "${TARGET_RELEASE_INDEX_PATH}"
-  echo "${TARGET_RELEASE_CONFIG_PATH}${NO_COLOUR}"
-fi
-
 
 progress 100
 
