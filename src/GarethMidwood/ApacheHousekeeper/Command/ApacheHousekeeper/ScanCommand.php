@@ -86,15 +86,20 @@ class ScanCommand extends BaseCommand
             }
 
             foreach($pathMatches['path'] as $path) {
+                $foundAFile = false;
+
                 foreach($indexes as $index) {
                     $filename = $path . DIRECTORY_SEPARATOR . $index;
 
                     if (file_exists($filename)) {
                         // check the last access date of the file and decide whether it's being used
                         echo "$filename was last accessed: " . date("F d Y H:i:s.", fileatime($filename)) . PHP_EOL;
-                    } else {
-                        echo "$filename does not exist" . PHP_EOL;
+                        $foundAFile = true;
                     }
+                }
+
+                if (!$foundAFile) {
+                    echo "Could not find files [" . implode(',', $indexes) . "] in $path" . PHP_EOL;
                 }
             }
         }
