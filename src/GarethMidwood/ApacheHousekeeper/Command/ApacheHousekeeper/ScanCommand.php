@@ -79,42 +79,25 @@ class ScanCommand extends BaseCommand
         foreach($this->sitesRunning as $site) {
             $config = file_get_contents($site);
 
-            preg_match_all('/DocumentRoot ["\']*(?<path>.+)["\']*/', $config, $pathMatches);
-            preg_match_all('/DirectoryIndex ["\']*(?<path>[A-Za-z0-9 -.]+)["\']*/', $config, $directoryIndexMatches);
+            // TODO: Can this include error logs too?
+            preg_match_all('/CustomLog ["\']*(?<path>[A-Za-z0-9 -.\/]+) [combined]*["\']*/', $config, $logMatches);
 
             $indexes = [];
 
-            if (count($directoryIndexMatches['path'])) {
-                foreach($directoryIndexMatches['path'] as $directoryIndexes) {
-                    $indexes = array_merge($indexes, explode(' ', $directoryIndexes));
-                }
-            } else {
-                // default to just index.php
-                $indexes = ['index.php'];
-            }
-
-            foreach($pathMatches['path'] as $path) {
-                $foundAFile = false;
-
-                foreach($indexes as $index) {
-                    $filename = $path . DIRECTORY_SEPARATOR . $index;
-
-                    if (file_exists($filename)) {
-                        // check the last access date of the file and decide whether it's being used
-                        $foundAFile = true;
-                        $accessedTime = fileatime($filename);
-                        $accessedDateTime = new \DateTime();
-                        $accessedDateTime->setTimestamp($accessedTime);
-                        $interval = date_diff($accessedDateTime, $nowDateTime);
-
-                        if ($interval->format('%a') > $cutoffDays) {
-                            echo "$filename was not accessed recently. Last access was " . $interval->format('%a') . ' days ago' . PHP_EOL;
-                        }
-                    }
+            foreach($logMatches['path'] as $path) {
+                if (!file_exists($path)) {
+                    echo "Could not find $path" . PHP_EOL;
+                    continue;
                 }
 
-                if (!$foundAFile) {
-                    echo "Could not find files [" . implode(',', $indexes) . "] in $path" . PHP_EOL;
+                // check the last access date of the file and decide whether it's being used
+                $accessedTime = fileatime($filename);
+                $accessedDateTime = new \DateTime();
+                $accessedDateTime->setTimestamp($accessedTime);
+                $interval = date_diff($accessedDateTime, $nowDateTime);
+
+                if ($interval->format('%a') > $cutoffDays) {
+                    echo "$filename was not accessed recently. Last access was " . $interval->format('%a') . ' days ago' . PHP_EOL;
                 }
             }
         }
