@@ -96,8 +96,8 @@ class ScanCommand extends BaseCommand
                     continue;
                 }
 
-                // check the last access date of the file and decide whether it's being used
-                $accessedTime = fileatime($path);
+                // check the last modified date of the file and decide whether it's being used
+                $accessedTime = filemtime($path);
                 $accessedDateTime = new \DateTime();
                 $accessedDateTime->setTimestamp($accessedTime);
                 $interval = date_diff($accessedDateTime, $nowDateTime);
@@ -105,13 +105,13 @@ class ScanCommand extends BaseCommand
                 $lastAccessed = $interval->format('%a');
 
                 if ($lastAccessed > $cutoffDays) {
-                    $this->log("DISABLE: $sitename $path was NOT accessed recently. Last access was $lastAccessed days ago");
+                    $this->log("DISABLE: $sitename $path was NOT modified recently. Last modified $lastAccessed days ago");
 
                     exec('a2dissite ' . $sitename);
                     unset($this->sitesRunning[$index]);
                     $this->sitesStopped[] = $site;
                 } else {
-                    $this->log("OK: $sitename $path was accessed recently. Last access was $lastAccessed days ago");
+                    $this->log("OK: $sitename $path was modified recently. Last modified $lastAccessed days ago");
                 }
             }
         }
