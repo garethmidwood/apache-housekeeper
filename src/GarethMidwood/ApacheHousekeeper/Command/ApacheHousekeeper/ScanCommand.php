@@ -9,8 +9,10 @@ use Symfony\Component\Finder\Finder;
 
 class ScanCommand extends BaseCommand
 {
+    private $sitesAvailable;
     private $sitesRunning;
     private $sitesStopped;
+    private $log = [];
 
     protected function configure()
     {
@@ -29,6 +31,7 @@ class ScanCommand extends BaseCommand
         $this->sitesRunning = [];
         $this->sitesAvailable = [];
         $this->sitesStopped = [];
+        $this->log = [];
 
         $availablePath = $this->_config->get('available-path', '/etc/apache2/sites-available');
         $enabledPath = $this->_config->get('enabled-path', '/etc/apache2/sites-enabled');
@@ -39,6 +42,8 @@ class ScanCommand extends BaseCommand
         $this->sitesStopped = array_diff($this->sitesAvailable, $this->sitesRunning);
 
         $this->populateAccessDatesForRunningSites();
+
+        $this->writeLog();
     }
 
     /**
@@ -74,10 +79,11 @@ class ScanCommand extends BaseCommand
 
         $nowDateTime = new \DateTime();
 
-        // echo "Cut off date is: " . $cutoffDateTime->format("F d Y H:i:s.") . PHP_EOL;
+        $this->log("Cut off date is: " . $cutoffDateTime->format("F d Y H:i:s."));
 
         foreach($this->sitesRunning as $index => $site) {
             $config = file_get_contents($site);
+            $sitename = basename($site);
 
             // TODO: Can this include error logs too?
             preg_match_all('/CustomLog ["\']*(?<path>[A-Za-z0-9 -.\/]+) [combined]*["\']*/', $config, $logMatches);
@@ -86,7 +92,7 @@ class ScanCommand extends BaseCommand
 
             foreach($logMatches['path'] as $path) {
                 if (!file_exists($path)) {
-                    // echo "Could not find $path" . PHP_EOL;
+                    $this->log("Could not find $path for site $sitename");
                     continue;
                 }
 
@@ -96,12 +102,16 @@ class ScanCommand extends BaseCommand
                 $accessedDateTime->setTimestamp($accessedTime);
                 $interval = date_diff($accessedDateTime, $nowDateTime);
 
-                if ($interval->format('%a') > $cutoffDays) {
-                    // echo "$path was not accessed recently. Last access was " . $interval->format('%a') . ' days ago' . PHP_EOL;
-                    // echo "disabling " . basename($site) . PHP_EOL;
-                    exec('a2dissite ' . basename($site));
+                $lastAccessed = $interval->format('%a');
+
+                if ($lastAccessed > $cutoffDays) {
+                    $this->log("DISABLE: $sitename $path was NOT accessed recently. Last access was $lastAccessed days ago");
+
+                    exec('a2dissite ' . $sitename);
                     unset($this->sitesRunning[$index]);
                     $this->sitesStopped[] = $site;
+                } else {
+                    $this->log("OK: $sitename $path was accessed recently. Last access was $lastAccessed days ago");
                 }
             }
         }
@@ -120,5 +130,25 @@ class ScanCommand extends BaseCommand
                 'stopped' => $this->sitesStopped
             ]
         ]);
+    }
+
+    /**
+     * Logs a message
+     * @param string $message 
+     * @return void
+     */
+    private function log($message)
+    {
+        $this->log[] = $message;
+    }
+
+    /**
+     * Writes the log to file
+     * @return void
+     */
+    private function writeLog()
+    {
+        $str = implode(PHP_EOL, $this->log);
+        file_put_contents('scan.log', $str);
     }
 }

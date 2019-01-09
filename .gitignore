@@ -1,3 +1,4 @@
 vendor
 private.key
 ahousekeeper.yml
+scan.log
