@@ -15,7 +15,7 @@ class ScanCommand extends BaseCommand
     protected function configure()
     {
         $this->setName('scan');
-        $this->setDescription('Scans setup and returns info on sites that are running - and those that aren\'t');
+        $this->setDescription('Scans setup and disables sites that have not been access (may require sudo access)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
