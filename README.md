@@ -37,3 +37,15 @@ cutoff: 30
   <dd>The number of visitor-free days before a site is disabled - defaults to 30</dd>
 </dl>
 
+### Running a scan
+
+This will automatically disable sites that have not been accessed (based on the access.log) since the configured cutoff date.
+
+If the apache config file does not contain an `access.log` file then this will not work.
+
+The command should be run as a user that has permissions to disable sites
+
+```
+php ahousekeeper.phar scan
+```
+
