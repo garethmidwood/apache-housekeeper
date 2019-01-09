@@ -39,9 +39,10 @@ cutoff: 30
 
 ### Running a scan
 
-This will automatically disable sites that have not been accessed (based on the access.log) since the configured cutoff date.
+This will automatically disable sites that have not been accessed (based on the last write to access.log) since the configured cutoff date.
+You may find that bots are accessing your sites every day, if this is the case you'll need to block them (using a firewall perhaps) from hitting apache, or add apache config to prevent bots writing access logs.
 
-If the apache config file does not contain an `access.log` file then this will not work.
+*If the apache config file does not contain an `access.log` file then this will not work.*
 
 The command should be run as a user that has permissions to disable sites
 
