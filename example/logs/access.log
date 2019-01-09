@@ -1,0 +1,3 @@
+123.456.789.0 - - [09/Jan/2019:06:11:29 +0000] "GET /bla/ HTTP/1.1" 401 4094 "-" "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+123.456.789.0 - - [09/Jan/2019:07:48:04 +0000] "GET /bla/ HTTP/1.1" 401 741 "-" "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)"
+123.456.789.0 - - [09/Jan/2019:09:12:56 +0000] "GET /bla/ HTTP/1.1" 401 4094 "-" "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
