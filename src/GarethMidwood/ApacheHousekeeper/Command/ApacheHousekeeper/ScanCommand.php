@@ -74,9 +74,9 @@ class ScanCommand extends BaseCommand
 
         $nowDateTime = new \DateTime();
 
-        echo "Cut off date is: " . $cutoffDateTime->format("F d Y H:i:s.") . PHP_EOL;
+        // echo "Cut off date is: " . $cutoffDateTime->format("F d Y H:i:s.") . PHP_EOL;
 
-        foreach($this->sitesRunning as $site) {
+        foreach($this->sitesRunning as $index => $site) {
             $config = file_get_contents($site);
 
             // TODO: Can this include error logs too?
@@ -86,18 +86,22 @@ class ScanCommand extends BaseCommand
 
             foreach($logMatches['path'] as $path) {
                 if (!file_exists($path)) {
-                    echo "Could not find $path" . PHP_EOL;
+                    // echo "Could not find $path" . PHP_EOL;
                     continue;
                 }
 
                 // check the last access date of the file and decide whether it's being used
-                $accessedTime = fileatime($filename);
+                $accessedTime = fileatime($path);
                 $accessedDateTime = new \DateTime();
                 $accessedDateTime->setTimestamp($accessedTime);
                 $interval = date_diff($accessedDateTime, $nowDateTime);
 
                 if ($interval->format('%a') > $cutoffDays) {
-                    echo "$filename was not accessed recently. Last access was " . $interval->format('%a') . ' days ago' . PHP_EOL;
+                    // echo "$path was not accessed recently. Last access was " . $interval->format('%a') . ' days ago' . PHP_EOL;
+                    // echo "disabling " . basename($site) . PHP_EOL;
+                    exec('a2dissite ' . basename($site));
+                    unset($this->sitesRunning[$index]);
+                    $this->sitesStopped[] = $site;
                 }
             }
         }
